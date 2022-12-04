@@ -6,6 +6,7 @@ pub fn open_profile(profile_name: String) {
             .arg("/C")
             .arg(format!("firefox -P {profile_name}"))
             .stdout(Stdio::null())
+            .stderr(Stdio::null())
             .spawn()
             .expect("Coudln't run firefox")
     } else {
@@ -17,4 +18,12 @@ pub fn open_profile(profile_name: String) {
             .spawn()
             .expect("Couldn't run firefox")
     };
+}
+
+pub fn get_profiles() -> Vec<String> {
+    if cfg!(target_os = "windows") {
+        todo!()
+    } else {
+        todo!()
+    }
 }
