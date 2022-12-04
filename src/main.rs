@@ -20,14 +20,13 @@ fn main() {
 }
 
 #[derive(Default)]
-struct FFPViewer {
-    profiles: Vec<String>,
-}
+struct FFPViewer(Vec<String>);
 
 impl eframe::App for FFPViewer {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            self.profiles = get_profiles();
+            self.0 = get_profiles();
+            dbg!(&self.0);
             ui.heading("FFPViewer");
         });
     }
