@@ -1,11 +1,13 @@
-use iced::{executor, Application, Theme, Command, Element};
-use iced::widget::{button, column};
+use iced::widget::{button, column, container};
+use iced::{executor, Alignment, Application, Command, Element, Length, Renderer, Theme};
 
 mod profile;
 
 #[derive(Debug, Clone)]
 pub struct ProfileSwitcher {
-    profiles: Vec<String>
+    // TODO: Make this a hashmap containing the profile as the key and the
+    // image as the value.
+    profiles: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -35,21 +37,34 @@ impl Application for ProfileSwitcher {
 
     fn update(&mut self, message: Message) -> Command<Message> {
         match message {
-            Message::ProfilePressed(profile) => return Command::perform(profile::open_profile(profile), |_| Message::ProfileOpened),
-            Message::ProfileOpened => ()
+            Message::ProfilePressed(profile) => {
+                return Command::perform(profile::open_profile(profile), |_| Message::ProfileOpened)
+            }
+            Message::ProfileOpened => (),
         };
 
         Command::none()
     }
 
     fn view(&self) -> Element<Message> {
-        column(self.profiles
-                .iter()
-                .map(|profile| {
-                    button(profile.as_str()).on_press(Message::ProfilePressed(profile.clone())).into()
-                }).collect()
+        container(
+            column::<Message, Renderer>(
+                self.profiles
+                    .iter()
+                    .map(|profile| {
+                        button(profile.as_str())
+                            .on_press(Message::ProfilePressed(profile.clone()))
+                            .into()
+                    })
+                    .collect(),
+            )
+            .spacing(10)
+            .padding(10)
+            .align_items(Alignment::Center),
         )
-        .align_items(iced::Alignment::Center)
+        .width(Length::Fill)
+        .center_x()
+        .center_y()
         .into()
     }
 }
