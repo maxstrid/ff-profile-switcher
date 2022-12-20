@@ -6,6 +6,12 @@ use directories::UserDirs;
 mod error;
 use error::Error;
 
+#[cfg(target_family = "windows")]
+const PROFILE_DIR: &str = r#"\AppData\Roaming\Mozilla\Firefox\Profiles"#;
+
+#[cfg(target_family = "unix")]
+const PROFILE_DIR: &str = "/.mozilla/firefox";
+
 pub async fn open_profile(profile_name: String) {
     async {
         let mut env: &str = "sh";
@@ -34,11 +40,7 @@ pub fn get_profiles() -> Vec<String> {
         .to_str()
         .expect("Couldn't get home directory for user");
 
-    let mut target = format!("{home_dir}/.mozilla/firefox");
-
-    if cfg!(target_os = "windows") {
-        target = format!(r#"{home_dir}\AppData\Roaming\Mozilla\Firefox\Profiles"#)
-    }
+    let target = format!("{home_dir}{PROFILE_DIR}");
 
     fs::read_dir(target)
         .expect("Couldn't read directory")
