@@ -1,4 +1,4 @@
-use iced::widget::{button, column, container};
+use iced::widget::{button, column, container, row};
 use iced::{executor, Alignment, Application, Command, Element, Length, Renderer, Theme};
 
 mod profile;
@@ -47,24 +47,24 @@ impl Application for ProfileSwitcher {
     }
 
     fn view(&self) -> Element<Message> {
-        container(
-            column::<Message, Renderer>(
-                self.profiles
-                    .iter()
-                    .map(|profile| {
-                        button(profile.as_str())
-                            .on_press(Message::ProfilePressed(profile.clone()))
-                            .into()
-                    })
-                    .collect(),
-            )
-            .spacing(10)
-            .padding(10)
-            .align_items(Alignment::Center),
+        let rows = row::<Message, Renderer>(
+            self.profiles
+                .iter()
+                .map(|profile| {
+                    button(profile.as_str())
+                        .on_press(Message::ProfilePressed(profile.clone()))
+                        .into()
+                })
+                .collect(),
         )
-        .width(Length::Fill)
-        .center_x()
-        .center_y()
-        .into()
+        .spacing(10)
+        .padding(10)
+        .align_items(Alignment::Center);
+
+        container(rows)
+            .width(Length::Fill)
+            .center_x()
+            .center_y()
+            .into()
     }
 }
