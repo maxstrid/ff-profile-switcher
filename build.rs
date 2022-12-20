@@ -26,7 +26,7 @@ fn main() {
     }
 
     if !Path::new(&format!("{resource_dir}placeholder.png")).exists() {
-        fs::rename("resources/placeholder.png", format!("{resource_dir}placeholder.png")).unwrap();
+        fs::copy("resources/placeholder.png", format!("{resource_dir}placeholder.png")).unwrap();
     }
 
     println!("cargo:rerun-if-changed={dir}");
