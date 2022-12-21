@@ -1,7 +1,9 @@
+use iced::theme::{self, Palette};
 use iced::widget::{button, column, container, row};
-use iced::{executor, Alignment, Application, Command, Element, Length, Renderer, Theme};
+use iced::{executor, Alignment, Application, Color, Command, Element, Length, Renderer, Theme};
 
 mod profile;
+mod style;
 
 #[derive(Debug, Clone)]
 pub struct ProfileSwitcher {
@@ -32,7 +34,13 @@ impl Application for ProfileSwitcher {
     }
 
     fn theme(&self) -> Theme {
-        Theme::Dark
+        Theme::custom(Palette {
+            background: Color::from_rgb(0.1, 0.1, 0.1),
+            text: Color::from_rgb(1.0, 1.0, 1.0),
+            primary: Color::from_rgb(0.15, 0.2, 0.3),
+            success: Color::from_rgb(0.2, 0.5, 0.15),
+            danger: Color::from_rgb(0.5, 0.1, 0.05),
+        })
     }
 
     fn update(&mut self, message: Message) -> Command<Message> {
@@ -53,6 +61,9 @@ impl Application for ProfileSwitcher {
                 .map(|profile| {
                     button(profile.as_str())
                         .on_press(Message::ProfilePressed(profile.clone()))
+                        .style(theme::Button::Custom(Box::new(
+                            style::ButtonStyle::default(),
+                        )))
                         .into()
                 })
                 .collect(),

@@ -1,5 +1,5 @@
-use std::path::Path;
 use std::fs;
+use std::path::Path;
 
 use directories::ProjectDirs;
 
@@ -26,7 +26,11 @@ fn main() {
     }
 
     if !Path::new(&format!("{resource_dir}placeholder.png")).exists() {
-        fs::copy("resources/placeholder.png", format!("{resource_dir}placeholder.png")).unwrap();
+        fs::copy(
+            "resources/placeholder.png",
+            format!("{resource_dir}placeholder.png"),
+        )
+        .unwrap();
     }
 
     println!("cargo:rerun-if-changed={dir}");
