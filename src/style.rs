@@ -32,6 +32,9 @@ impl StyleSheet for ButtonStyle {
         Appearance {
             background: Some(Background::Color(bg_color)),
             text_color: self.text_color,
+            border_radius: 5.0,
+            border_width: 2.0,
+            border_color: rgb(255, 255, 255),
             ..Default::default()
         }
     }
