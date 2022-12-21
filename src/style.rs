@@ -8,7 +8,7 @@ pub struct ButtonStyle {
 impl Default for ButtonStyle {
     fn default() -> Self {
         Self {
-            text_color: Color::from_rgb(1.0, 1.0, 1.0),
+            text_color: rgb(255, 255, 255),
         }
     }
 }
@@ -17,7 +17,7 @@ impl StyleSheet for ButtonStyle {
     type Style = Theme;
 
     fn active(&self, _style: &Self::Style) -> Appearance {
-        let bg_color = Color::from_rgb(0.2, 0.2, 0.2);
+        let bg_color = rgb(50, 50, 50);
 
         Appearance {
             background: Some(Background::Color(bg_color)),
@@ -27,7 +27,7 @@ impl StyleSheet for ButtonStyle {
     }
 
     fn hovered(&self, _style: &Self::Style) -> Appearance {
-        let bg_color = Color::from_rgb(1.0, 0.6, 0.1);
+        let bg_color = rgb(255, 160, 25);
 
         Appearance {
             background: Some(Background::Color(bg_color)),
@@ -35,4 +35,9 @@ impl StyleSheet for ButtonStyle {
             ..Default::default()
         }
     }
+}
+
+// Helper function to convert normal rgb to a color
+pub fn rgb(r: i32, g: i32, b: i32) -> Color {
+    Color::from_rgb(r as f32 / 255.0, g as f32 / 255.0, b as f32 / 255.0)
 }
