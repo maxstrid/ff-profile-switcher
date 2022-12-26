@@ -20,7 +20,6 @@ pub struct ProfileSwitcher {
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    ProfileOpened,
     ProfilePressed(String),
     ShouldExit,
 }
@@ -74,9 +73,8 @@ impl Application for ProfileSwitcher {
     fn update(&mut self, message: Message) -> Command<Message> {
         match message {
             Message::ProfilePressed(profile) => {
-                return Command::perform(profile::open_profile(profile), |_| Message::ProfileOpened)
+                return Command::perform(profile::open_profile(profile), |_| Message::ShouldExit)
             }
-            Message::ProfileOpened => (),
             Message::ShouldExit => self.should_exit = true,
         };
 
