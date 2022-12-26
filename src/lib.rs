@@ -1,7 +1,7 @@
 use iced::theme::{self, Palette};
 use iced::widget::{button, column, container, row};
 use iced::{
-    executor, keyboard, subscription, Application, Command, Element, Event, Length, Renderer, Theme,
+    executor, keyboard, subscription, Application, Command, Element, Event, Length, Renderer, Theme, Alignment
 };
 
 mod profile;
@@ -22,6 +22,22 @@ pub enum Message {
     ProfileOpened,
     ProfilePressed(String),
     ShouldExit,
+}
+
+impl ProfileSwitcher {
+    pub fn settings() -> iced::Settings<()> {
+
+        iced::Settings {
+            window: iced::window::Settings {
+                size: (800, 600),
+                position: iced::window::Position::Centered,
+                resizable: false,
+                decorations: false,
+                ..Default::default()
+            },
+            ..Default::default()
+        }
+    }
 }
 
 impl Application for ProfileSwitcher {
