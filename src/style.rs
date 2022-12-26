@@ -1,4 +1,5 @@
-use iced::widget::button::{Appearance, StyleSheet};
+use iced::widget::button;
+use iced::widget::container;
 use iced::{Background, Color, Theme};
 
 pub struct ButtonStyle {
@@ -13,28 +14,54 @@ impl Default for ButtonStyle {
     }
 }
 
-impl StyleSheet for ButtonStyle {
+impl button::StyleSheet for ButtonStyle {
     type Style = Theme;
 
-    fn active(&self, _style: &Self::Style) -> Appearance {
+    fn active(&self, _style: &Self::Style) -> button::Appearance {
         let bg_color = rgb(50, 50, 50);
 
-        Appearance {
+        button::Appearance {
             background: Some(Background::Color(bg_color)),
             text_color: self.text_color,
             ..Default::default()
         }
     }
 
-    fn hovered(&self, _style: &Self::Style) -> Appearance {
+    fn hovered(&self, _style: &Self::Style) -> button::Appearance {
         let bg_color = rgb(255, 160, 25);
 
-        Appearance {
+        button::Appearance {
             background: Some(Background::Color(bg_color)),
-            text_color: self.text_color,
+            text_color: self.text_color.inverse(),
             border_radius: 5.0,
             border_width: 2.0,
             border_color: rgb(255, 255, 255),
+            ..Default::default()
+        }
+    }
+}
+
+pub struct LeftContainerStyle {
+    bg_color: Color,
+    text_color: Color,
+}
+
+impl Default for LeftContainerStyle {
+    fn default() -> Self {
+        Self {
+            bg_color: rgb(60, 60, 60),
+            text_color: rgb(255, 255, 255),
+        }
+    }
+}
+
+impl container::StyleSheet for LeftContainerStyle {
+    type Style = Theme;
+
+    fn appearance(&self, _style: &Self::Style) -> container::Appearance {
+        container::Appearance {
+            background: Some(Background::Color(self.bg_color)),
+            text_color: Some(self.text_color),
             ..Default::default()
         }
     }

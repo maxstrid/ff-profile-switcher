@@ -1,23 +1,27 @@
 use iced::theme::{self, Palette};
 use iced::widget::{button, column, container, row};
-use iced::{executor, Alignment, Application, Command, Element, Length, Renderer, Theme};
+use iced::{
+    executor, keyboard, subscription, Application, Command, Element, Event, Length, Renderer, Theme,
+};
 
 mod profile;
 mod style;
 
-use style::{rgb, ButtonStyle};
+use style::{rgb, ButtonStyle, LeftContainerStyle};
 
 #[derive(Debug, Clone)]
 pub struct ProfileSwitcher {
     // TODO: Make this a hashmap containing the profile as the key and the
     // image as the value.
     profiles: Vec<String>,
+    should_exit: bool,
 }
 
 #[derive(Debug, Clone)]
 pub enum Message {
     ProfileOpened,
     ProfilePressed(String),
+    ShouldExit,
 }
 
 impl Application for ProfileSwitcher {
@@ -28,7 +32,13 @@ impl Application for ProfileSwitcher {
 
     fn new(_flags: ()) -> (Self, Command<Message>) {
         let profiles = profile::get_profiles();
-        (ProfileSwitcher { profiles }, Command::none())
+        (
+            ProfileSwitcher {
+                profiles,
+                should_exit: false,
+            },
+            Command::none(),
+        )
     }
 
     fn title(&self) -> String {
@@ -51,13 +61,14 @@ impl Application for ProfileSwitcher {
                 return Command::perform(profile::open_profile(profile), |_| Message::ProfileOpened)
             }
             Message::ProfileOpened => (),
+            Message::ShouldExit => self.should_exit = true,
         };
 
         Command::none()
     }
 
     fn view(&self) -> Element<Message> {
-        let rows = row::<Message, Renderer>(
+        let rows = column::<Message, Renderer>(
             self.profiles
                 .iter()
                 .map(|profile| {
@@ -70,12 +81,38 @@ impl Application for ProfileSwitcher {
         )
         .spacing(10)
         .padding(10)
-        .align_items(Alignment::Center);
+        .align_items(Alignment::Fill);
 
         container(rows)
-            .width(Length::Fill)
-            .center_x()
+            .height(Length::Fill)
             .center_y()
+            .style(theme::Container::Custom(Box::new(
+                LeftContainerStyle::default(),
+            )))
             .into()
+    }
+
+    fn subscription(&self) -> iced::Subscription<Self::Message> {
+        subscription::events_with(|event, _status| match event {
+            Event::Keyboard(key_event) => {
+                if let keyboard::Event::KeyPressed {
+                    key_code,
+                    modifiers: _,
+                } = key_event
+                {
+                    if key_code == keyboard::KeyCode::Escape {
+                        return Some(Message::ShouldExit);
+                    } else {
+                        return None;
+                    }
+                }
+                None
+            }
+            _ => None,
+        })
+    }
+
+    fn should_exit(&self) -> bool {
+        self.should_exit
     }
 }
