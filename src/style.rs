@@ -18,7 +18,7 @@ impl button::StyleSheet for ButtonStyle {
     type Style = Theme;
 
     fn active(&self, _style: &Self::Style) -> button::Appearance {
-        let bg_color = rgb(50, 50, 50);
+        let bg_color = rgb(26, 26, 25);
 
         button::Appearance {
             background: Some(Background::Color(bg_color)),
@@ -49,7 +49,7 @@ pub struct LeftContainerStyle {
 impl Default for LeftContainerStyle {
     fn default() -> Self {
         Self {
-            bg_color: rgb(60, 60, 60),
+            bg_color: rgb(35, 35, 35),
             text_color: rgb(255, 255, 255),
         }
     }
