@@ -1,67 +1,46 @@
+use iced::theme::Palette;
 use iced::widget::button;
 use iced::widget::container;
 use iced::{Background, Color, Theme};
 
-pub struct ButtonStyle {
-    pub text_color: Color,
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct AppTheme {
+    pub main_col: Color,
+    pub accent_col: Color,
+    pub focus_col: Color,
+    pub text_col: Color,
 }
 
-impl Default for ButtonStyle {
-    fn default() -> Self {
-        Self {
-            text_color: rgb(255, 255, 255),
-        }
+impl AppTheme {
+    pub fn theme(&self) -> Theme {
+        Theme::custom(Palette {
+            background: self.main_col,
+            text: self.text_col,
+            primary: self.accent_col,
+            success: rgb(0, 0, 255),
+            danger: rgb(255, 0, 0),
+        })
     }
 }
 
-impl button::StyleSheet for ButtonStyle {
+impl button::StyleSheet for AppTheme {
     type Style = Theme;
 
     fn active(&self, _style: &Self::Style) -> button::Appearance {
-        let bg_color = rgb(26, 26, 25);
-
         button::Appearance {
-            background: Some(Background::Color(bg_color)),
-            text_color: self.text_color,
+            background: Some(Background::Color(self.accent_col)),
+            text_color: self.text_col,
             ..Default::default()
         }
     }
 
     fn hovered(&self, _style: &Self::Style) -> button::Appearance {
-        let bg_color = rgb(255, 160, 25);
-
         button::Appearance {
-            background: Some(Background::Color(bg_color)),
-            text_color: self.text_color.inverse(),
+            background: Some(Background::Color(self.focus_col)),
+            text_color: self.text_col.inverse(),
             border_radius: 5.0,
             border_width: 2.0,
             border_color: rgb(255, 255, 255),
-            ..Default::default()
-        }
-    }
-}
-
-pub struct LeftContainerStyle {
-    bg_color: Color,
-    text_color: Color,
-}
-
-impl Default for LeftContainerStyle {
-    fn default() -> Self {
-        Self {
-            bg_color: rgb(35, 35, 35),
-            text_color: rgb(255, 255, 255),
-        }
-    }
-}
-
-impl container::StyleSheet for LeftContainerStyle {
-    type Style = Theme;
-
-    fn appearance(&self, _style: &Self::Style) -> container::Appearance {
-        container::Appearance {
-            background: Some(Background::Color(self.bg_color)),
-            text_color: Some(self.text_color),
             ..Default::default()
         }
     }

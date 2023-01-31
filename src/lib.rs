@@ -1,5 +1,6 @@
 use iced::theme::{self, Palette};
 use iced::widget::{button, column, container, text};
+use iced::window;
 use iced::{
     executor, keyboard, subscription, Alignment, Application, Command, Element, Event, Length,
     Renderer, Theme,
@@ -8,77 +9,81 @@ use iced::{
 mod profile;
 mod style;
 
-use style::{rgb, ButtonStyle, LeftContainerStyle};
-
-#[derive(Debug, Clone)]
-pub struct ProfileSwitcher {
-    // TODO: Make this a hashmap containing the profile as the key and the
-    // image as the value.
-    profiles: Vec<String>,
-    should_exit: bool,
-}
+use style::*;
 
 #[derive(Debug, Clone)]
 pub enum Message {
     ProfilePressed(String),
     ShouldExit,
+    SwitchTheme,
 }
 
-impl ProfileSwitcher {
-    pub fn settings() -> iced::Settings<()> {
-        iced::Settings {
-            window: iced::window::Settings {
-                size: (800, 600),
-                position: iced::window::Position::Centered,
-                resizable: false,
-                decorations: false,
-                ..Default::default()
-            },
-            ..Default::default()
-        }
-    }
+#[derive(Debug)]
+pub struct ProfileManager {
+    profiles: Vec<String>,
+    current_theme: AppTheme,
+    light_theme: AppTheme,
+    dark_theme: AppTheme,
 }
 
-impl Application for ProfileSwitcher {
-    type Executor = executor::Default;
+impl Application for ProfileManager {
     type Message = Message;
     type Theme = Theme;
+    type Executor = executor::Default;
     type Flags = ();
 
-    fn new(_flags: ()) -> (Self, Command<Message>) {
+    fn new(_flags: ()) -> (ProfileManager, Command<Message>) {
         let profiles = profile::get_profiles();
+
+        let light_theme = AppTheme {
+            main_col: rgb(228, 240, 247),
+            accent_col: rgb(200, 202, 204),
+            focus_col: rgb(255, 150, 51),
+            text_col: rgb(0, 0, 0),
+        };
+
+        let dark_theme = AppTheme {
+            main_col: rgb(33, 33, 33),
+            accent_col: rgb(48, 47, 54),
+            focus_col: rgb(255, 150, 51),
+            text_col: rgb(255, 255, 255),
+        };
+
         (
-            ProfileSwitcher {
+            ProfileManager {
                 profiles,
-                should_exit: false,
+                current_theme: dark_theme,
+                light_theme,
+                dark_theme,
             },
             Command::none(),
         )
     }
 
     fn title(&self) -> String {
-        String::from("Firefox Profile Switcher")
+        String::from("Firefox Profile Manager")
     }
 
     fn theme(&self) -> Theme {
-        Theme::custom(Palette {
-            background: rgb(26, 26, 25),
-            text: rgb(255, 255, 255),
-            primary: rgb(39, 50, 78),
-            success: rgb(50, 130, 40),
-            danger: rgb(130, 26, 15),
-        })
+        self.current_theme.theme()
     }
 
     fn update(&mut self, message: Message) -> Command<Message> {
         match message {
             Message::ProfilePressed(profile) => {
-                return Command::perform(profile::open_profile(profile), |_| Message::ShouldExit)
+                Command::perform(profile::open_profile(profile), |_| Message::ShouldExit)
             }
-            Message::ShouldExit => self.should_exit = true,
-        };
+            Message::ShouldExit => window::close(),
+            Message::SwitchTheme => {
+                if self.current_theme == self.dark_theme {
+                    self.current_theme = self.light_theme;
+                } else {
+                    self.current_theme = self.dark_theme;
+                };
 
-        Command::none()
+                Command::none()
+            }
+        }
     }
 
     fn view(&self) -> Element<Message> {
@@ -91,7 +96,7 @@ impl Application for ProfileSwitcher {
                             .horizontal_alignment(iced::alignment::Horizontal::Center),
                     )
                     .on_press(Message::ProfilePressed(profile.clone()))
-                    .style(theme::Button::Custom(Box::new(ButtonStyle::default())))
+                    .style(theme::Button::Custom(Box::new(self.current_theme)))
                     .into()
                 })
                 .collect(),
@@ -103,9 +108,7 @@ impl Application for ProfileSwitcher {
         container(rows)
             .height(Length::Fill)
             .center_y()
-            .style(theme::Container::Custom(Box::new(
-                LeftContainerStyle::default(),
-            )))
+            .center_x()
             .into()
     }
 
@@ -128,8 +131,19 @@ impl Application for ProfileSwitcher {
             _ => None,
         })
     }
+}
 
-    fn should_exit(&self) -> bool {
-        self.should_exit
+impl ProfileManager {
+    pub fn settings() -> iced::Settings<()> {
+        iced::Settings {
+            window: iced::window::Settings {
+                size: (800, 600),
+                position: iced::window::Position::Centered,
+                resizable: false,
+                decorations: false,
+                ..Default::default()
+            },
+            ..Default::default()
+        }
     }
 }

@@ -1,6 +1,6 @@
-use ff_profile_switcher::ProfileSwitcher;
+use ff_profile_switcher::ProfileManager;
 use iced::Application;
 
 fn main() -> iced::Result {
-    ProfileSwitcher::run(ProfileSwitcher::settings())
+    ProfileManager::run(ProfileManager::settings())
 }
