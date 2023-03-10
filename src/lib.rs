@@ -1,4 +1,5 @@
-use iced::theme::{self, Palette};
+use iced::alignment;
+use iced::theme;
 use iced::widget::{button, column, container, text};
 use iced::window;
 use iced::{
@@ -16,11 +17,14 @@ pub enum Message {
     ProfilePressed(String),
     ShouldExit,
     SwitchTheme,
+    SelectNext,
+    OpenSelected,
 }
 
 #[derive(Debug)]
 pub struct ProfileManager {
     profiles: Vec<String>,
+    selected_profile: Option<usize>,
     current_theme: AppTheme,
     light_theme: AppTheme,
     dark_theme: AppTheme,
@@ -44,7 +48,7 @@ impl Application for ProfileManager {
 
         let dark_theme = AppTheme {
             main_col: rgb(33, 33, 33),
-            accent_col: rgb(48, 47, 54),
+            accent_col: rgb(48, 48, 48),
             focus_col: rgb(255, 150, 51),
             text_col: rgb(255, 255, 255),
         };
@@ -52,6 +56,7 @@ impl Application for ProfileManager {
         (
             ProfileManager {
                 profiles,
+                selected_profile: None,
                 current_theme: dark_theme,
                 light_theme,
                 dark_theme,
@@ -83,32 +88,81 @@ impl Application for ProfileManager {
 
                 Command::none()
             }
+            Message::SelectNext => {
+                if let Some(index) = self.selected_profile {
+                    if index < self.profiles.len() && index + 1 != self.profiles.len() {
+                        self.selected_profile = Some(index + 1);
+                    } else {
+                        self.selected_profile = Some(0);
+                    }
+                } else {
+                    self.selected_profile = Some(0);
+                }
+
+                Command::none()
+            }
+            Message::OpenSelected => {
+                if let Some(index) = self.selected_profile {
+                    if let Some(profile_name) = self.profiles.get(index) {
+                        return Command::perform(
+                            profile::open_profile(profile_name.to_string()),
+                            |_| Message::ShouldExit,
+                        );
+                    }
+                }
+
+                Command::none()
+            }
         }
     }
 
     fn view(&self) -> Element<Message> {
-        let rows = column::<Message, Renderer>(
-            self.profiles
-                .iter()
-                .map(|profile| {
-                    button(
-                        text(profile.as_str())
-                            .horizontal_alignment(iced::alignment::Horizontal::Center),
-                    )
-                    .on_press(Message::ProfilePressed(profile.clone()))
-                    .style(theme::Button::Custom(Box::new(self.current_theme)))
-                    .into()
-                })
-                .collect(),
-        )
-        .spacing(10)
-        .padding(10)
-        .align_items(Alignment::Fill);
+        let get_theme = |profile: String, selected_profile: Option<usize>| -> theme::Button {
+            if let Some(profile_index) = selected_profile {
+                if profile == *self.profiles.get(profile_index).unwrap() {
+                    return theme::Button::Custom(Box::new(self.current_theme.selected()));
+                }
+            }
 
-        container(rows)
+            theme::Button::Custom(Box::new(self.current_theme))
+        };
+
+        let profile_buttons: Vec<Element<Message, Renderer>> = self
+            .profiles
+            .iter()
+            .map(|profile| {
+                button(text(profile.as_str()).horizontal_alignment(alignment::Horizontal::Center))
+                    .on_press(Message::ProfilePressed(profile.clone()))
+                    .style(get_theme(profile.to_string(), self.selected_profile))
+                    .into()
+            })
+            .collect();
+
+        let columns = column::<Message, Renderer>(profile_buttons)
+            .spacing(10)
+            .align_items(Alignment::Fill);
+
+        let pcon = container(columns)
             .height(Length::Fill)
-            .center_y()
+            .width(Length::Fill)
             .center_x()
+            .center_y();
+
+        let profile_container = column::<Message, Renderer>(vec![
+            pcon.into(),
+            button("Switch Theme")
+                .style(theme::Button::Custom(Box::new(self.current_theme)))
+                .on_press(Message::SwitchTheme)
+                .into(),
+        ])
+        .spacing(10)
+        .padding(10);
+
+        container(profile_container)
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .center_x()
+            .center_y()
             .into()
     }
 
@@ -120,10 +174,12 @@ impl Application for ProfileManager {
                     modifiers: _,
                 } = key_event
                 {
-                    if key_code == keyboard::KeyCode::Escape {
-                        return Some(Message::ShouldExit);
-                    } else {
-                        return None;
+                    match key_code {
+                        keyboard::KeyCode::Escape => return Some(Message::ShouldExit),
+                        keyboard::KeyCode::Q => return Some(Message::ShouldExit),
+                        keyboard::KeyCode::Tab => return Some(Message::SelectNext),
+                        keyboard::KeyCode::Enter => return Some(Message::OpenSelected),
+                        _ => return None,
                     }
                 }
                 None
