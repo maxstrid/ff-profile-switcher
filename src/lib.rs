@@ -142,14 +142,14 @@ impl Application for ProfileManager {
             .spacing(10)
             .align_items(Alignment::Fill);
 
-        let pcon = container(columns)
+        let profile_container = container(columns)
             .height(Length::Fill)
             .width(Length::Fill)
             .center_x()
             .center_y();
 
-        let profile_container = column::<Message, Renderer>(vec![
-            pcon.into(),
+        let main_column = column::<Message, Renderer>(vec![
+            profile_container.into(),
             button("Switch Theme")
                 .style(theme::Button::Custom(Box::new(self.current_theme)))
                 .on_press(Message::SwitchTheme)
@@ -158,7 +158,7 @@ impl Application for ProfileManager {
         .spacing(10)
         .padding(10);
 
-        container(profile_container)
+        container(main_column)
             .height(Length::Fill)
             .width(Length::Fill)
             .center_x()
